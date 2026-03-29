@@ -524,19 +524,34 @@ function getActiveSlideIndex(track, slides) {
     return 0;
   }
 
+  const trackWidth = track.clientWidth || 1;
   const currentScroll = track.scrollLeft;
-  let nearestIndex = 0;
+  let bestIndex = 0;
+  let bestVisibility = -1;
   let nearestDistance = Number.POSITIVE_INFINITY;
 
   slides.forEach((slide, index) => {
+    const slideWidth = slide.clientWidth || 1;
+    const start = slide.offsetLeft - currentScroll;
+    const end = start + slideWidth;
+    const visiblePx = Math.max(0, Math.min(trackWidth, end) - Math.max(0, start));
+    const visibility = visiblePx / slideWidth;
     const distance = Math.abs(slide.offsetLeft - currentScroll);
-    if (distance < nearestDistance) {
+
+    if (visibility > bestVisibility + 0.001) {
+      bestVisibility = visibility;
+      bestIndex = index;
       nearestDistance = distance;
-      nearestIndex = index;
+      return;
+    }
+
+    if (Math.abs(visibility - bestVisibility) <= 0.001 && distance < nearestDistance) {
+      bestIndex = index;
+      nearestDistance = distance;
     }
   });
 
-  return nearestIndex;
+  return bestIndex;
 }
 
 function applyActiveDotState(dots, activeIndex) {
@@ -574,6 +589,9 @@ function initImageSlider() {
 
   catalogContainer.querySelectorAll("[data-image-track]").forEach((track) => {
     let ticking = false;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isSwipeGesture = false;
 
     const syncDots = () => {
       if (ticking) {
@@ -590,6 +608,50 @@ function initImageSlider() {
     track.addEventListener("scroll", syncDots, { passive: true });
     track.addEventListener("touchend", () => updateDotsForTrack(track), { passive: true });
     track.addEventListener("pointerup", () => updateDotsForTrack(track), { passive: true });
+    track.addEventListener("scrollend", () => updateDotsForTrack(track));
+    track.addEventListener(
+      "touchstart",
+      (event) => {
+        const touch = event.touches?.[0];
+        if (!touch) {
+          return;
+        }
+
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        isSwipeGesture = false;
+      },
+      { passive: true }
+    );
+    track.addEventListener(
+      "touchmove",
+      (event) => {
+        const touch = event.touches?.[0];
+        if (!touch) {
+          return;
+        }
+
+        const movedX = Math.abs(touch.clientX - touchStartX);
+        const movedY = Math.abs(touch.clientY - touchStartY);
+        if (movedX > 8 || movedY > 8) {
+          isSwipeGesture = true;
+        }
+      },
+      { passive: true }
+    );
+    track.addEventListener(
+      "click",
+      (event) => {
+        if (!isSwipeGesture) {
+          return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+        isSwipeGesture = false;
+      },
+      true
+    );
 
     updateDotsForTrack(track);
   });

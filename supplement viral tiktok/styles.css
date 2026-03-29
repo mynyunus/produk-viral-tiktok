@@ -214,7 +214,7 @@ h1 {
   background: transparent;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
-  touch-action: pan-x;
+  touch-action: manipulation;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
