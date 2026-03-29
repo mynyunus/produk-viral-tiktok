@@ -415,6 +415,36 @@ function initSmoothScroll() {
   });
 }
 
+function updateDescriptionToggleVisibility() {
+  if (!catalogContainer) {
+    return;
+  }
+
+  catalogContainer.querySelectorAll(".product-card").forEach((card) => {
+    const description = card.querySelector(".product-desc");
+    const toggle = card.querySelector(".desc-toggle");
+
+    if (!description || !toggle) {
+      return;
+    }
+
+    const wasExpanded = toggle.getAttribute("aria-expanded") === "true";
+
+    description.classList.remove("is-expanded");
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.textContent = "See more";
+
+    const isOverflowing = description.scrollHeight > description.clientHeight + 1;
+    toggle.hidden = !isOverflowing;
+
+    if (isOverflowing && wasExpanded) {
+      description.classList.add("is-expanded");
+      toggle.setAttribute("aria-expanded", "true");
+      toggle.textContent = "See less";
+    }
+  });
+}
+
 function initDescriptionToggle() {
   if (!catalogContainer) {
     return;
@@ -422,7 +452,7 @@ function initDescriptionToggle() {
 
   catalogContainer.addEventListener("click", (event) => {
     const toggle = event.target.closest(".desc-toggle");
-    if (!toggle) {
+    if (!toggle || toggle.hidden) {
       return;
     }
 
@@ -437,10 +467,47 @@ function initDescriptionToggle() {
     }
 
     const isExpanded = toggle.getAttribute("aria-expanded") === "true";
+
+    catalogContainer.querySelectorAll(".desc-toggle").forEach((button) => {
+      if (button === toggle || button.hidden) {
+        return;
+      }
+
+      const otherTargetId = button.getAttribute("aria-controls");
+      if (!otherTargetId) {
+        return;
+      }
+
+      const otherDescription = document.getElementById(otherTargetId);
+      button.setAttribute("aria-expanded", "false");
+      button.textContent = "See more";
+      otherDescription?.classList.remove("is-expanded");
+    });
+
     toggle.setAttribute("aria-expanded", isExpanded ? "false" : "true");
     toggle.textContent = isExpanded ? "See more" : "See less";
     description.classList.toggle("is-expanded", !isExpanded);
   });
+
+  updateDescriptionToggleVisibility();
+
+  let resizeTimer = null;
+  window.addEventListener("resize", () => {
+    if (resizeTimer) {
+      clearTimeout(resizeTimer);
+    }
+
+    resizeTimer = setTimeout(() => {
+      updateDescriptionToggleVisibility();
+      resizeTimer = null;
+    }, 120);
+  });
+
+  if (document.fonts?.ready) {
+    document.fonts.ready.then(() => {
+      updateDescriptionToggleVisibility();
+    });
+  }
 }
 
 function updateDotsForTrack(track) {
@@ -454,7 +521,24 @@ function updateDotsForTrack(track) {
     return;
   }
 
-  const activeIndex = Math.round(track.scrollLeft / Math.max(track.clientWidth, 1));
+  const slides = Array.from(track.querySelectorAll(".product-image-slide"));
+  if (!slides.length) {
+    return;
+  }
+
+  const trackCenter = track.scrollLeft + track.clientWidth / 2;
+  let activeIndex = 0;
+  let minDistance = Number.POSITIVE_INFINITY;
+
+  slides.forEach((slide, index) => {
+    const slideCenter = slide.offsetLeft + slide.clientWidth / 2;
+    const distance = Math.abs(trackCenter - slideCenter);
+
+    if (distance < minDistance) {
+      minDistance = distance;
+      activeIndex = index;
+    }
+  });
 
   dots.forEach((dot, index) => {
     dot.classList.toggle("is-active", index === activeIndex);
@@ -494,8 +578,14 @@ function initImageSlider() {
       return;
     }
 
+    const slides = Array.from(track.querySelectorAll(".product-image-slide"));
+    const targetSlide = slides[imageIndex];
+    if (!targetSlide) {
+      return;
+    }
+
     track.scrollTo({
-      left: track.clientWidth * imageIndex,
+      left: targetSlide.offsetLeft,
       behavior: "smooth"
     });
   });
