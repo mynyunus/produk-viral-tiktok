@@ -510,13 +510,50 @@ function initDescriptionToggle() {
   }
 }
 
+function getDotsForSlider(sliderId) {
+  if (!catalogContainer || !sliderId) {
+    return [];
+  }
+
+  const safeSliderId = sliderId.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  return Array.from(catalogContainer.querySelectorAll(`.image-dot[data-slider-id="${safeSliderId}"]`));
+}
+
+function getActiveSlideIndex(track, slides) {
+  if (!slides.length) {
+    return 0;
+  }
+
+  const currentScroll = track.scrollLeft;
+  let nearestIndex = 0;
+  let nearestDistance = Number.POSITIVE_INFINITY;
+
+  slides.forEach((slide, index) => {
+    const distance = Math.abs(slide.offsetLeft - currentScroll);
+    if (distance < nearestDistance) {
+      nearestDistance = distance;
+      nearestIndex = index;
+    }
+  });
+
+  return nearestIndex;
+}
+
+function applyActiveDotState(dots, activeIndex) {
+  dots.forEach((dot, index) => {
+    const isActive = index === activeIndex;
+    dot.classList.toggle("is-active", isActive);
+    dot.setAttribute("aria-selected", isActive ? "true" : "false");
+  });
+}
+
 function updateDotsForTrack(track) {
   const sliderId = track.id;
   if (!sliderId) {
     return;
   }
 
-  const dots = catalogContainer.querySelectorAll(`.image-dot[data-slider-id="${CSS.escape(sliderId)}"]`);
+  const dots = getDotsForSlider(sliderId);
   if (!dots.length) {
     return;
   }
@@ -526,23 +563,8 @@ function updateDotsForTrack(track) {
     return;
   }
 
-  const trackCenter = track.scrollLeft + track.clientWidth / 2;
-  let activeIndex = 0;
-  let minDistance = Number.POSITIVE_INFINITY;
-
-  slides.forEach((slide, index) => {
-    const slideCenter = slide.offsetLeft + slide.clientWidth / 2;
-    const distance = Math.abs(trackCenter - slideCenter);
-
-    if (distance < minDistance) {
-      minDistance = distance;
-      activeIndex = index;
-    }
-  });
-
-  dots.forEach((dot, index) => {
-    dot.classList.toggle("is-active", index === activeIndex);
-  });
+  const activeIndex = getActiveSlideIndex(track, slides);
+  applyActiveDotState(dots, activeIndex);
 }
 
 function initImageSlider() {
@@ -551,13 +573,25 @@ function initImageSlider() {
   }
 
   catalogContainer.querySelectorAll("[data-image-track]").forEach((track) => {
-    track.addEventListener(
-      "scroll",
-      () => {
+    let ticking = false;
+
+    const syncDots = () => {
+      if (ticking) {
+        return;
+      }
+
+      ticking = true;
+      window.requestAnimationFrame(() => {
         updateDotsForTrack(track);
-      },
-      { passive: true }
-    );
+        ticking = false;
+      });
+    };
+
+    track.addEventListener("scroll", syncDots, { passive: true });
+    track.addEventListener("touchend", () => updateDotsForTrack(track), { passive: true });
+    track.addEventListener("pointerup", () => updateDotsForTrack(track), { passive: true });
+
+    updateDotsForTrack(track);
   });
 
   catalogContainer.addEventListener("click", (event) => {
@@ -583,6 +617,9 @@ function initImageSlider() {
     if (!targetSlide) {
       return;
     }
+
+    const dots = getDotsForSlider(sliderId);
+    applyActiveDotState(dots, imageIndex);
 
     track.scrollTo({
       left: targetSlide.offsetLeft,
