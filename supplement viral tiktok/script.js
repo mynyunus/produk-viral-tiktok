@@ -288,7 +288,7 @@ function renderImageMedia(product, sliderId, productLink) {
     return `
       <div class="product-media">
         <div class="product-image-track" id="${sliderId}">
-          ${imageOpenTag} aria-label="Lihat produk ${escapeHtml(product.name)}">
+          ${imageOpenTag} data-image-index="0" aria-label="Lihat produk ${escapeHtml(product.name)}">
             <div class="product-image-placeholder">Product Image</div>
           ${imageCloseTag}
         </div>
@@ -299,7 +299,7 @@ function renderImageMedia(product, sliderId, productLink) {
   const imageSlides = product.images
     .map((imageUrl, imageIndex) => {
       return `
-        ${imageOpenTag} aria-label="Lihat imej ${imageIndex + 1} untuk ${escapeHtml(product.name)}">
+        ${imageOpenTag} data-image-index="${imageIndex}" aria-label="Lihat imej ${imageIndex + 1} untuk ${escapeHtml(product.name)}">
           <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(product.name)} imej ${imageIndex + 1}" loading="lazy" />
         ${imageCloseTag}
       `;
@@ -524,19 +524,20 @@ function getActiveSlideIndex(track, slides) {
     return 0;
   }
 
-  const trackWidth = track.clientWidth || 1;
-  const currentScroll = track.scrollLeft;
+  const trackRect = track.getBoundingClientRect();
+  const trackWidth = trackRect.width || track.clientWidth || 1;
+  const trackCenter = trackRect.left + trackWidth / 2;
   let bestIndex = 0;
   let bestVisibility = -1;
   let nearestDistance = Number.POSITIVE_INFINITY;
 
   slides.forEach((slide, index) => {
-    const slideWidth = slide.clientWidth || 1;
-    const start = slide.offsetLeft - currentScroll;
-    const end = start + slideWidth;
-    const visiblePx = Math.max(0, Math.min(trackWidth, end) - Math.max(0, start));
+    const slideRect = slide.getBoundingClientRect();
+    const slideWidth = slideRect.width || slide.clientWidth || 1;
+    const visiblePx = Math.max(0, Math.min(trackRect.right, slideRect.right) - Math.max(trackRect.left, slideRect.left));
     const visibility = visiblePx / slideWidth;
-    const distance = Math.abs(slide.offsetLeft - currentScroll);
+    const slideCenter = slideRect.left + slideWidth / 2;
+    const distance = Math.abs(slideCenter - trackCenter);
 
     if (visibility > bestVisibility + 0.001) {
       bestVisibility = visibility;
@@ -552,6 +553,12 @@ function getActiveSlideIndex(track, slides) {
   });
 
   return bestIndex;
+}
+
+function getScrollLeftForSlide(track, slide) {
+  const trackRect = track.getBoundingClientRect();
+  const slideRect = slide.getBoundingClientRect();
+  return Math.max(0, track.scrollLeft + (slideRect.left - trackRect.left));
 }
 
 function applyActiveDotState(dots, activeIndex) {
@@ -592,6 +599,9 @@ function initImageSlider() {
     let touchStartX = 0;
     let touchStartY = 0;
     let isSwipeGesture = false;
+    const sliderId = track.id;
+    const dots = getDotsForSlider(sliderId);
+    const slides = Array.from(track.querySelectorAll(".product-image-slide"));
 
     const syncDots = () => {
       if (ticking) {
@@ -654,6 +664,41 @@ function initImageSlider() {
     );
 
     updateDotsForTrack(track);
+
+    if (dots.length && slides.length > 1 && "IntersectionObserver" in window) {
+      const visibilityMap = new Map();
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const index = Number(entry.target.getAttribute("data-image-index"));
+            if (Number.isNaN(index)) {
+              return;
+            }
+
+            visibilityMap.set(index, entry.intersectionRatio);
+          });
+
+          let activeIndex = 0;
+          let bestRatio = -1;
+
+          slides.forEach((slide, index) => {
+            const ratio = visibilityMap.get(index) ?? 0;
+            if (ratio > bestRatio) {
+              bestRatio = ratio;
+              activeIndex = index;
+            }
+          });
+
+          applyActiveDotState(dots, activeIndex);
+        },
+        {
+          root: track,
+          threshold: [0.25, 0.5, 0.75, 0.95]
+        }
+      );
+
+      slides.forEach((slide) => observer.observe(slide));
+    }
   });
 
   catalogContainer.addEventListener("click", (event) => {
@@ -684,7 +729,7 @@ function initImageSlider() {
     applyActiveDotState(dots, imageIndex);
 
     track.scrollTo({
-      left: targetSlide.offsetLeft,
+      left: getScrollLeftForSlide(track, targetSlide),
       behavior: "smooth"
     });
   });
