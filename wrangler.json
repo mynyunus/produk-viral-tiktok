@@ -6,7 +6,7 @@
     "directory": "./public"
   },
   "build": {
-    "command": "rm -rf public && mkdir -p public && find . -mindepth 1 -maxdepth 1 ! -name public ! -name .git ! -name wrangler.json -exec cp -R {} public/ \\; && if [ -d 'public/supplement viral tiktok' ]; then cp -R 'public/supplement viral tiktok'/./ public/; fi"
+    "command": "rm -rf public && mkdir -p public && find . -mindepth 1 -maxdepth 1 ! -name public ! -name .git ! -name wrangler.json -exec cp -R {} public/ \\;"
   },
   "routes": [
     {
