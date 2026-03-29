@@ -15,12 +15,10 @@ const SHEET_DB_CONFIG = NICHE_SHEETS[ACTIVE_NICHE];
 const HARD_CODED_CATEGORIES = [
   { title: "Jantung & Kolesterol", slug: "jantung-kolesterol" },
   { title: "Gula Dalam Darah / Diabetes", slug: "gula-darah-diabetes" },
-  { title: "Minda & Fokus", slug: "minda-fokus" },
+  { title: "Buah Pinggang", slug: "buah-pinggang" },
   { title: "Booster Tenaga & Anti-Letih", slug: "booster-tenaga-anti-letih" },
   { title: "Imun & Ketahanan Badan", slug: "imun-ketahanan-badan" },
-  { title: "Buah Pinggang", slug: "buah-pinggang" },
   { title: "Sendi & Tulang", slug: "sendi-tulang" },
-  { title: "Kurus / Weight Loss", slug: "kurus-weight-loss" },
   { title: "Sistem Penghadaman / Usus", slug: "sistem-penghadaman-usus" },
   { title: "Lelaki (Stamina & Dalaman)", slug: "lelaki-stamina-dalaman" },
   { title: "Wanita (Hormon & Dalaman)", slug: "wanita-hormon-dalaman" },

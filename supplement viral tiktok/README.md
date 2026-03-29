@@ -53,16 +53,14 @@ Boleh isi sama ada:
 
 1. `jantung-kolesterol` (Jantung & Kolesterol)
 2. `gula-darah-diabetes` (Gula Dalam Darah / Diabetes)
-3. `minda-fokus` (Minda & Fokus)
+3. `buah-pinggang` (Buah Pinggang)
 4. `booster-tenaga-anti-letih` (Booster Tenaga & Anti-Letih)
 5. `imun-ketahanan-badan` (Imun & Ketahanan Badan)
-6. `buah-pinggang` (Buah Pinggang)
-7. `sendi-tulang` (Sendi & Tulang)
-8. `kurus-weight-loss` (Kurus / Weight Loss)
-9. `sistem-penghadaman-usus` (Sistem Penghadaman / Usus)
-10. `lelaki-stamina-dalaman` (Lelaki (Stamina & Dalaman))
-11. `wanita-hormon-dalaman` (Wanita (Hormon & Dalaman))
-12. `detox-pembersihan-badan` (Detox & Pembersihan Badan)
+6. `sendi-tulang` (Sendi & Tulang)
+7. `sistem-penghadaman-usus` (Sistem Penghadaman / Usus)
+8. `lelaki-stamina-dalaman` (Lelaki (Stamina & Dalaman))
+9. `wanita-hormon-dalaman` (Wanita (Hormon & Dalaman))
+10. `detox-pembersihan-badan` (Detox & Pembersihan Badan)
 
 ## 5) Multi Image
 
