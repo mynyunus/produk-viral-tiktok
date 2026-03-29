@@ -1,0 +1,17 @@
+{
+  "name": "produk-viral-tiktok",
+  "compatibility_date": "2024-09-23",
+  "workers_dev": false,
+  "assets": {
+    "directory": "./public"
+  },
+  "build": {
+    "command": "rm -rf public && mkdir -p public && find . -mindepth 1 -maxdepth 1 ! -name public ! -name .git ! -name wrangler.json -exec cp -R {} public/ \\; && if [ -d 'public/supplement viral tiktok' ]; then cp -R 'public/supplement viral tiktok'/./ public/; fi"
+  },
+  "routes": [
+    {
+      "pattern": "produkviraltiktok.mynsites.com",
+      "custom_domain": true
+    }
+  ]
+}
