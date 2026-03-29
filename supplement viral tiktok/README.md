@@ -6,6 +6,7 @@ Setup terbaru:
 - **Setiap niche guna 1 tab sheet** yang simpan semua produk niche itu.
 - Produk masuk ke kategori berdasarkan kolum `category`/`kategori` pada row.
 - `enabled` pada row produk untuk on/off display.
+- Kategori yang tiada produk aktif dalam DB tidak akan dipaparkan pada frontend (section + navbar).
 
 ## 1) Konfigurasi Dalam script.js
 

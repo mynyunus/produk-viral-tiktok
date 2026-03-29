@@ -5,6 +5,7 @@ Setup folder ini:
 - Kategori frontend adalah hardcode (tetap dalam `script.js`).
 - Data produk datang dari Google Sheets niche Skincare & Beauty.
 - Produk dipadankan ke kategori melalui kolum `category`/`kategori`.
+- Kategori tanpa produk aktif dalam DB tidak dipaparkan pada frontend (section + navbar).
 
 ## Konfigurasi Semasa
 

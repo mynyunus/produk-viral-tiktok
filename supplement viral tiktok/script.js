@@ -286,7 +286,7 @@ function buildCategoriesWithProducts(allProducts) {
   return HARD_CODED_CATEGORIES.map((category) => {
     const products = allProducts.filter((product) => product.categorySlug === category.slug);
     return { ...category, products };
-  });
+  }).filter((category) => category.products.length > 0);
 }
 
 function renderImageMedia(product, sliderId, productLink) {
@@ -378,9 +378,7 @@ function renderProductCard(product, categorySlug, productIndex) {
 }
 
 function renderCategoryBlock(category, index) {
-  const productCards = category.products.length
-    ? category.products.map((product, productIndex) => renderProductCard(product, category.slug, productIndex)).join("")
-    : `<div class="empty-card">Belum ada produk dalam kategori ini.</div>`;
+  const productCards = category.products.map((product, productIndex) => renderProductCard(product, category.slug, productIndex)).join("");
 
   return `
     <section class="category-block" id="category-${index + 1}">
@@ -855,7 +853,7 @@ async function loadCatalogFromSheet() {
   const allProducts = mapProducts(productRows);
   const categories = buildCategoriesWithProducts(allProducts);
 
-  if (!categories.some((category) => category.products.length > 0)) {
+  if (!categories.length) {
     throw new Error("Tiada produk aktif dijumpai. Semak kolum category/kategori dan enabled.");
   }
 
