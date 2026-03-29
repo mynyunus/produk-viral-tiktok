@@ -145,6 +145,16 @@ function isEnabledFlag(rawValue) {
   return !["0", "false", "off", "no", "x", "disable", "disabled"].includes(value);
 }
 
+function isRecommendedFlag(rawValue) {
+  const value = String(rawValue || "").trim().toLowerCase();
+
+  if (!value) {
+    return false;
+  }
+
+  return ["1", "true", "yes", "y", "on", "reco", "recommend", "recommended", "featured", "hot"].includes(value);
+}
+
 function parseNumber(value, fallback = 0) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
@@ -248,6 +258,8 @@ function mapProducts(rows) {
 
       const sortOrder = parseNumber(getFirstValue(row, ["sort", "order", "susunan"], index + 1), index + 1);
       const images = parseImages(row);
+      const isRecommended = isRecommendedFlag(getFirstValue(row, ["recommended", "recommend", "is_recommended", "badge_recommend", "reco"], ""));
+      const recommendedText = getFirstValue(row, ["recommended_text", "recommend_text", "badge_text"], "Recommended");
 
       return {
         id: getFirstValue(row, ["id", "product_id"], `${categorySlug}-${index + 1}`),
@@ -259,6 +271,8 @@ function mapProducts(rows) {
         price: getFirstValue(row, ["est_price", "price", "harga", "anggaran_harga"], "RM 59"),
         link: getFirstValue(row, ["link", "url", "affiliate_link"], "#"),
         images,
+        isRecommended,
+        recommendedText,
         sortOrder
       };
     })
@@ -281,10 +295,14 @@ function renderImageMedia(product, sliderId, productLink) {
     ? `<a class="product-image-slide" href="${escapeHtml(safeImageLink)}" target="_blank" rel="nofollow sponsored noopener noreferrer"`
     : `<button class="product-image-slide" type="button"`;
   const imageCloseTag = safeImageLink ? "</a>" : "</button>";
+  const badgeMarkup = product.isRecommended
+    ? `<span class="recommend-badge recommend-badge-overlay">${escapeHtml(product.recommendedText || "Recommended")}</span>`
+    : "";
 
   if (!product.images.length) {
     return `
       <div class="product-media">
+        ${badgeMarkup}
         <div class="product-image-track" id="${sliderId}">
           ${imageOpenTag} data-image-index="0" aria-label="Lihat produk ${escapeHtml(product.name)}">
             <div class="product-image-placeholder">Product Image</div>
@@ -327,6 +345,7 @@ function renderImageMedia(product, sliderId, productLink) {
 
   return `
     <div class="product-media">
+      ${badgeMarkup}
       <div class="product-image-track" id="${sliderId}" data-image-track>
         ${imageSlides}
       </div>

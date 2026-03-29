@@ -27,6 +27,8 @@ Header disyorkan:
 - `est_price`
 - `link`
 - `images`
+- `recommended`
+- `recommended_text` (optional)
 - `enabled`
 - `sort`
 
@@ -61,13 +63,25 @@ Kolum `enabled`:
 - `1` / kosong = papar
 - `0` / `false` / `off` / `no` / `disabled` = sorok
 
+## Badge Recommended (Opsyenal)
+
+Kolum `recommended`:
+
+- `1` / `true` / `yes` / `on` / `recommended` = paparkan badge
+- kosong / `0` = tak paparkan badge
+
+Kolum `recommended_text` (optional):
+
+- jika diisi, teks badge ikut nilai ini
+- jika kosong, default teks badge = `Recommended`
+
 ## Susunan Produk
 
 Kolum `sort` untuk urutan dalam kategori (kecil ke besar).
 
 ## Contoh Row
 
-- `SCB-001 | Glow Serum A | brightening-glow | Bantu kulit nampak lebih seri... | 4.8 | 12.5k+ | RM 39 | https://affiliate-link | https://img1.jpg|https://img2.jpg | 1 | 1`
+- `SCB-001 | Glow Serum A | brightening-glow | Bantu kulit nampak lebih seri... | 4.8 | 12.5k+ | RM 39 | https://affiliate-link | https://img1.jpg|https://img2.jpg | 1 | Top Pick | 1 | 1`
 
 ## Troubleshoot
 

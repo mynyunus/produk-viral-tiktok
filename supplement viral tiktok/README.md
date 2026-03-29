@@ -37,6 +37,8 @@ Header disyorkan:
 - `est_price`
 - `link`
 - `images`
+- `recommended`
+- `recommended_text` (optional)
 - `enabled`
 - `sort`
 
@@ -84,15 +86,27 @@ Kolum `enabled`:
 - `1` / kosong = papar
 - `0` / `false` / `off` / `no` / `disabled` = sorok
 
-## 7) Susunan Produk
+## 7) Badge Recommended (Opsyenal)
+
+Kolum `recommended`:
+
+- `1` / `true` / `yes` / `on` / `recommended` = paparkan badge
+- kosong / `0` = tak paparkan badge
+
+Kolum `recommended_text` (optional):
+
+- jika diisi, teks badge ikut nilai ini
+- jika kosong, default teks badge = `Recommended`
+
+## 8) Susunan Produk
 
 Kolum `sort` untuk susun produk dalam kategori (kecil -> besar).
 
-## 8) Contoh Row
+## 9) Contoh Row
 
-- `SUP-001 | Arcid Go | jantung-kolesterol | Sokongan harian... | 4.8 | 1.7k+ | RM 55 | https://affiliate-link | https://img1.jpg|https://img2.jpg | 1 | 1`
+- `SUP-001 | Arcid Go | jantung-kolesterol | Sokongan harian... | 4.8 | 1.7k+ | RM 55 | https://affiliate-link | https://img1.jpg|https://img2.jpg | 1 | Best Seller | 1 | 1`
 
-## 9) Troubleshoot
+## 10) Troubleshoot
 
 Jika data tak keluar:
 
